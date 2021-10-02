@@ -52,7 +52,7 @@ client.on('messageCreate', async message => {
 		return message.reply({ content: 'epic gamer bot is currently undergoing maintenance, so users may not use any of its features.' });
 	}
 	const { command, args } = await commands.parse(message);
-	await commands.cooldown(command, message);
+	if (await commands.cooldown(command, message)) return;
 	return await command.execute(message, args, IPM);
 });
 

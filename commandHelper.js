@@ -26,7 +26,15 @@ module.exports = class Commands {
 		args.forEach(async (arg, index) =>{
 			arg.length != 0 ? args[index] = arg.trim() : args = args.filter($arg => $arg != arg);
 		});
-		const command = this.commands.get(commandName) || this.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+		let command = this.commands.get(commandName) || this.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+		if (!command) {
+			command = {
+				notReal: true,
+				execute: async function() {
+					return;
+				},
+			};
+		}
 		return {
 			command: command,
 			args: args,
@@ -53,5 +61,6 @@ module.exports = class Commands {
 		}
 		timestamps.set(message.author.id, Date.now());
 		setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+		return false;
 	}
 };
