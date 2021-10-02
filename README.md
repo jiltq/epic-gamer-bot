@@ -5,4 +5,4 @@
 
 epic bot for epic gamers
 
-[come see it in action!](https://discord.gg/NnhuHJCFS9)
+[come see it in action!](https://discord.gg/NnhuHJCFS9 "our Discord server")
