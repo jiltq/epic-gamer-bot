@@ -1,0 +1,24 @@
+{
+	"prefix": "?",
+	"token": "NzAwNDU1NTM5NTU3MjY5NTc1.XpjMDg.LVHPCUt8PU13-IfawTRbdBBgh7A",
+	"steamKey": "C0B60310DFC81DB8E76C12A64B63F0CC",
+	"dictionaryKey": "2a82e248-bad2-40a6-b55c-3007c8519b41",
+	"thesaurusKey": "83b6e955-308c-48be-929a-1204775790e7",
+	"redditSecret": "UpXZVBlmmPn0e_2Osj2PdTuWti-ioQ",
+	"avatar": "https://cdn.discordapp.com/attachments/783520899382247454/784945432425660456/lavender_jiltq.png",
+	"username": "epic gamer bot",
+	"status": "dnd",
+	"icons": {
+		"696079746697527376": "https://cdn.discordapp.com/attachments/783520899382247454/784947838035558410/blur.png",
+		"747551095668342804": "https://cdn.discordapp.com/attachments/783520899382247454/784945432425660456/lavender_jiltq.png"
+	},
+	"splashes": {
+		"696079746697527376": "https://cdn.discordapp.com/attachments/783520899382247454/784947838035558410/blur.png"
+	},
+	"main_module_filename": "C:\\Users\\Ethan\\OneDrive\\Desktop\\Discord Bots\\Epic Gamer Bot\\Epic Gamer Bot Main\\index.js",
+	"auto_update_cooldown": 120000,
+	"disable_auto_rank": true,
+	"fixedUpdateInterval": 16.6666667,
+	"jiltq": "695662672687005737",
+	"maintenance": false
+}

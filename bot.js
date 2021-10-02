@@ -3,23 +3,13 @@ const Discord = require('discord.js');
 const config = require('./config.json');
 const IPM = require('./IPM.js');
 const visuals = require('./visuals.js');
-const brain = require('brain.js');
-const Builders = require('@discordjs/builders');
 
-const translate = require('@vitalets/google-translate-api');
-const languages = require('C:/Users/Ethan/OneDrive/Desktop/Discord Bots/Epic Gamer Bot/Epic Gamer Bot Main/node_modules/@vitalets/google-translate-api/languages.js');
-const settings = require('./JSON/serverSettings.json');
-
-const networkPath = 'C:/Users/Ethan/OneDrive/Desktop/Discord Bots/Epic Gamer Bot/Epic Gamer Bot Main/JSON/filterNetwork.json';
 const trim = (str, max) => ((str.length > max) ? `${str.slice(0, max - 3)}...` : str);
 const _intents = [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILD_PRESENCES, Discord.Intents.FLAGS.GUILD_VOICE_STATES, Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Discord.Intents.FLAGS.DIRECT_MESSAGES];
 
 module.exports = {
 	name: 'Bot File',
 };
-const dmModeMembers = [
-
-];
 const Commands = require('./commandHelper.js');
 const commands = new Commands(__dirname + '/commands/');
 
@@ -66,43 +56,6 @@ client.on('messageCreate', async message => {
 	return await command.execute(message, args, IPM);
 });
 
-client.on('messageCreate', async $message =>{
-	return;
-	// Filtering
-	const data = await IPM.readJSON(networkPath);
-
-	const network = new brain.recurrent.LSTM();
-	network.fromJSON(data);
-
-	const isHarmful = network.run($message.content);
-	console.log(isHarmful);
-	if (isHarmful == 'bad') {
-		$message.delete();
-	}
-	return;
-	if ($message.author.id != client.user.id) return;
-	if ($message.embeds.length == 0) {
-		const { text } = await translate($message.content, { from: 'auto', to: settings.servers[$message.guild.id].language });
-		return await $message.edit(text);
-	}
-	else {
-		$message.embeds.forEach(async embed =>{
-			const backup = embed;
-			if (embed.title) embed.setTitle((await translate(embed.title, { from: 'auto', to: settings.servers[$message.guild.id].language })).text);
-			if (embed.description) embed.setDescription((await translate(embed.description, { from: 'auto', to: settings.servers[$message.guild.id].language })).text);
-			embed.setColor(settings.servers[$message.guild.id].embedColor);
-			if (embed.fields.length != 0) {
-				embed.fields.forEach(async field =>{
-					console.log(field);
-					const name = (await translate(field.name, { from: 'auto', to: settings.servers[$message.guild.id].language })).text;
-					const value = (await translate(field.value, { from: 'auto', to: settings.servers[$message.guild.id].language })).text;
-					embed.setFields([{ name: name, value: value, inline: field.inline }, ...embed.fields.filter(fielde => fielde.name != field.name)]);
-				});
-			}
-			await $message.edit({ embeds:[embed, ...$message.embeds.filter(embede => embede.title != backup.title)] });
-		});
-	}
-});
 client.on('messageCreate', async $message =>{
 	if (!$message.author.bot && $message.channel.type == 'GUILD_TEXT') {
 		await $message.client.shard.broadcastEval(async (c, { message, author, $guildName, color, channelName }) => {
