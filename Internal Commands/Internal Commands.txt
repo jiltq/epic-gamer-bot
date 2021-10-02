@@ -1,0 +1,3 @@
+Internal commands are internal processes run by Epic Gamer Bot, executed from the main script
+
+Internal commands have seperate files to save room in the main script and to improve performance

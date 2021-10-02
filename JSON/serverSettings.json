@@ -1,0 +1,16 @@
+{
+    "template": {
+        "language": "en",
+        "embedColor": "DEFAULT"
+    },
+    "info": {
+        "language": "What language Epic Gamer Bot posts content in",
+        "embedColor": "What color Epic Gamer Bot's embeds are"
+    },
+    "servers": {
+        "696079746697527376": {
+            "language": "en",
+            "embedColor": "GOLD"
+        }
+    }
+}
