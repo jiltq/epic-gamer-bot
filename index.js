@@ -1,5 +1,5 @@
 const { ShardingManager } = require('discord.js');
-const { token } = require('../Epic Gamer Bot Main/config.json');
+const { token } = require('./config.json');
 const visuals = require('./visuals.js');
 
 const _file = './bot.js';
