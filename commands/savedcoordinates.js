@@ -1,6 +1,4 @@
 const Discord = require('discord.js');
-const groupHelper = require('../groupHelper.js');
-const GroupHelper = new groupHelper.GroupHelper();
 
 module.exports = {
 	name: 'savedcoordinates',
@@ -9,7 +7,6 @@ module.exports = {
 		if (!args.length) {
 			await IPM.return_json_data('C:/Users/Ethan/OneDrive/Desktop/Discord Bots/Epic Gamer Bot/Epic Gamer Bot Main/savedcoordinates.json').then(async rawdata =>{
 				const data = rawdata.guilds[message.guild.id];
-				console.log(await GroupHelper.group(Object.keys(data), 3));
 				if (!data) return message.channel.send('it doesn\'t look like this server has any coordinates saved!');
 				if (!Object.keys(data).length) return message.channel.send('it doesn\'t look like this server has any coordinates saved!');
 				// const hide = data.filter(coords => coords.private == true && message.author.id == coords.user);
