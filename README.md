@@ -1,3 +1,3 @@
-# epic-gamer-bot
+# epic gamer bot
 
-cool
+epic bot for epic gamers
