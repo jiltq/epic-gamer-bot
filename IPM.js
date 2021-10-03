@@ -11,6 +11,7 @@ const Json = require('./jsonHelper.js');
 const commands = new Commands(__dirname + '/commands/');
 const cooldowns = new Discord.Collection();
 /**
+ * @module
  * The IPM (Internal Process Manager) manages most internal processes sent throughout Epic Gamer Bot.
  * Examples include executing commands, modifying JSON data, etc.
  *
