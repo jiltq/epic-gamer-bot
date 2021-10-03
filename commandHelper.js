@@ -3,12 +3,6 @@ const Discord = require('discord.js');
 const config = require('./config.json');
 
 class Commands {
-	/**
-	 * Creates a new Commands class
-	 * @param {string} path Path to command files
-	 * @class
-	 * @classdesc Grants the ability to execute commands
-	 */
 	constructor(path) {
 		this.commands = new Discord.Collection();
 		this.cooldowns = new Discord.Collection();
@@ -18,13 +12,7 @@ class Commands {
 			this.commands.set(command.name, command);
 		}
 	}
-	/**
-	 * Parse a message for its command and arguments
-	 * @param {Discord.Message} message Message to parse
-	 * @returns Parsed commands and arguments
-	 * @async
-	 */
-	async parse(message) {
+	async parse(message, internal = false) {
 		if (!message.content.startsWith(config.prefix) || message.author.bot) {
 			return {
 				command: { notReal: true, execute: async () =>{
@@ -40,6 +28,14 @@ class Commands {
 		});
 		let command = this.commands.get(commandName) || this.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 		if (!command) {
+			command = {
+				notReal: true,
+				execute: async function() {
+					return;
+				},
+			};
+		}
+		else if (command.internal && !internal) {
 			command = {
 				notReal: true,
 				execute: async function() {

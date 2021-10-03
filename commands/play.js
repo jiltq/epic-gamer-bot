@@ -1,3 +1,4 @@
+return;
 // const ytsr = require('ytsr');
 const Discord = require('discord.js');
 const ytdl = require('ytdl-core');

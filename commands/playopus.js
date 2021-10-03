@@ -1,3 +1,4 @@
+return;
 const Discord = require('discord.js');
 const yts = require('yt-search');
 const ytpl = require('ytpl');

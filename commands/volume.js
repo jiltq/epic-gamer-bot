@@ -1,3 +1,4 @@
+return;
 const dispatcherModule = require('../databases/dispatcher');
 
 module.exports = {

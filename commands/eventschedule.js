@@ -1,3 +1,4 @@
+return;
 const Discord = require('discord.js');
 const IPM = require('../IPM.js');
 
