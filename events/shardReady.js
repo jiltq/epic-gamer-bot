@@ -1,9 +1,8 @@
-const Status = require('../statusHelper.js');
+const visuals = require('../visuals.js');
 
 module.exports = {
 	name: 'shardReady',
-    once: true,
-    async execute() {
-        
-    }
-}
+	async execute(id) {
+		visuals.log(module, 'success', `Shard ${id} is now ready`);
+	},
+};
