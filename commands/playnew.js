@@ -3,7 +3,6 @@ const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
 const yts = require('yt-search');
 const fs = require('fs');
-const fsp = require('fs').promises;
 
 module.exports = {
 	name: 'play',
@@ -30,10 +29,14 @@ module.exports = {
 			},
 		});
 		const video = (await yts(args.join(' '))).videos[0];
-		await fsp.unlink('ytAudio.ogg');
 		const stream = ytdl(video.url, { filter: 'audioonly' });
-		stream.on('progress', (chunklength, totaldownloaded, total) =>{
-			console.log(totaldownloaded / total);
+		stream.once('progress', (chunklength, totaldownloaded, total) =>{
+			const mb = total / 1e+6;
+			const timeSeconds = mb / 3;
+			const downloadEmbed = new Discord.MessageEmbed()
+				.setTitle('downloading your video..')
+				.setDescription(`at 3mb/s, this will take around \`${timeSeconds.toFixed(1)}\` second(s)`);
+			message.channel.send({ embeds: [downloadEmbed] });
 		});
 		const metadata = await ytdl.getInfo(video.url);
 		const seconds = parseFloat(metadata.player_response.videoDetails.lengthSeconds);
