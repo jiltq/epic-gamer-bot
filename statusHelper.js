@@ -1,16 +1,14 @@
 const Json = require('./jsonHelper.js');
+const utility = require('./utility.js');
 
 function status_update(client, statuses) {
-	if (true) {
-		// For random number function: https://www.w3schools.com/js/js_random.asp
-		const newIndex = Math.floor(Math.random() * Object.keys(statuses.statuses).length);
-		const newArray = Object.values(statuses.statuses)[newIndex];
-		const newType = Object.keys(statuses.statuses)[newIndex];
-		const newStatus = newArray[Math.floor(Math.random() * newArray.length)];
-		client.user.setPresence({ activities: [{ name: `${newStatus} | ?help`, type: newType }], status: 'dnd' });
+	if (!statuses.featured.name) {
+		const type = utility.random(Object.keys(statuses.activities));
+		const activity = utility.random(statuses.activities[type]);
+		client.user.setPresence({ activities: [{ name: `${activity} | ?help`, type: type }], status: 'dnd' });
 	}
 	else {
-		client.user.setPresence({ activities: [{ name: `${statuses.featured_status.name} | ?help`, type: statuses.featured_status.type }], status: 'dnd' });
+		client.user.setPresence({ activities: [{ name: `${statuses.featured.name} | ?help`, type: statuses.featured.type }], status: 'dnd' });
 	}
 }
 

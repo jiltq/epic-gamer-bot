@@ -1,9 +1,9 @@
 {
-  "featured_status": {
+  "featured": {
     "name": null,
     "type": null
   },
-  "statuses": {
+  "activities": {
     "WATCHING": ["Shrek", "squirrels", "Grubhub ads", "the world burn", "jiltq code", "Seinfeld", "The Office", "your mom", "jiltq suffer"],
     "PLAYING": ["Minecraft 2.0", "Portal 3", "Half Life 3", "Snek", "Minecraft Pocket Edition Lite", "ur mom", "undefined", "bean burrito", "windows 10", "roblox", "Pokémon GO 2", "minecraft pi edition", "minecraft infdev", "want egb to play new games? send suggestions!", "epic gamer bot", "Terraria", "Left 4 Dead 3", "the Virtual Boy", "Groovy's Mom", "Portal 2: Episode 1", "Portal 2: Episode 2", "Shrek Extra Large", "New Super MMMMMMMMM--", "Subnautica: Above Zero", "with discord.js", "Omari"],
     "LISTENING": ["C418 music", "Octave", "Rick Astley - Never Gonna Give You Up (Video)", "rain sounds", "cow bells", "complaints", "jiltq suffer"]

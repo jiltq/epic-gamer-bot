@@ -13,11 +13,6 @@ let clientsLoggedIn = false;
 
 module.exports = {
 	name: 'Shard Manager',
-	/**
-	 * Evaluates a script on a shard
-	 * @param {Function} script Script to evaluate
-	 * @param {Number} shardId ID of shard
-	 */
 	async clientEval(script, shardId) {
 		if (!clientsLoggedIn) return;
 		return await manager.broadcastEval(script, { shard: shardId });
@@ -31,6 +26,13 @@ manager.spawn({ amount: _amount, delay: _delay, timeout: _timeout })
 	.then(() =>{
 		visuals.log(module, 'success', 'Successfully spawned shards');
 		clientsLoggedIn = true;
+		/*
+		manager.broadcastEval(async (c) =>{
+			setTimeout(async () =>{
+
+			}, 1000 * 60);
+		}, { shard: undefined });
+		*/
 	})
 	.catch(err =>{
 		visuals.log(module, 'error', `Failed to spawn shards  ||  ${err.message}`);

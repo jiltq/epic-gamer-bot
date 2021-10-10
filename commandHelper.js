@@ -43,6 +43,14 @@ class Commands {
 				},
 			};
 		}
+		else if (args.length == 0 && command.args) {
+			command = {
+				notReal: true,
+				execute: async function() {
+					return;
+				},
+			};
+		}
 		return {
 			command: command,
 			args: args,
