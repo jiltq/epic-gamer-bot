@@ -1,18 +1,21 @@
 const math = require('mathjs');
 const Discord = require('discord.js');
 const parser = math.parser();
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
-	name: 'math',
-	description: 'calculate expressions!',
-	aliases: ['calculate'],
-	usage: '[math expression]',
-	category: 'utility',
-	async execute(message, args) {
+	data: new SlashCommandBuilder()
+		.setName('math')
+		.setDescription('calculate expressions')
+		.addStringOption(option =>
+			option.setName('expression')
+				.setDescription('math expression')
+				.setRequired(true)),
+	async execute(interaction) {
 		const embed = new Discord.MessageEmbed()
-			.setAuthor(`${args.join(' ')}`)
-			.setTitle(`**${parser.evaluate(args.join(' '))}**`)
+			.setAuthor(`${interaction.options.getString('expression')}`)
+			.setTitle(`**${parser.evaluate(interaction.options.getString('expression'))}**`)
 			.setFooter('powered by mathjs');
-		message.channel.send({ embeds: [embed] });
+		interaction.editReply({ embeds: [embed] });
 	},
 };

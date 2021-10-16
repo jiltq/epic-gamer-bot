@@ -12,6 +12,9 @@ class Commands {
 			this.commands.set(command.name, command);
 		}
 	}
+	async getTheFuckingCommand(commandName) {
+		return this.commands.get(commandName);
+	}
 	async parse(message, internal = false) {
 		if (!message.content.startsWith(config.prefix) || message.author.bot) {
 			return {

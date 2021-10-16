@@ -11,6 +11,7 @@ module.exports = {
 	name: 'help_old',
 	description: 'shows a help page for several commands',
 	execute(message, args) {
+		return
 		const args2 = args.join("")
 		if (!args.length) {
 			const exampleEmbed = new Discord.MessageEmbed()

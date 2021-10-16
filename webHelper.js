@@ -5,7 +5,7 @@ class Web {
 		this.joe = joe;
 	}
 	async fetch(url, options) {
-		return JSON.parse(JSON.stringify(await (await fetch(url, options)).json()));
+		return await fetch(url, options).then(response => response.json());
 	}
 }
 module.exports = Web;

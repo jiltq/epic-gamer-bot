@@ -5,10 +5,10 @@ function status_update(client, statuses) {
 	if (!statuses.featured.name) {
 		const type = utility.random(Object.keys(statuses.activities));
 		const activity = utility.random(statuses.activities[type]);
-		client.user.setPresence({ activities: [{ name: `${activity} | ?help`, type: type }], status: 'dnd' });
+		client.user.setPresence({ activities: [{ name: activity, type: type }], status: 'dnd' });
 	}
 	else {
-		client.user.setPresence({ activities: [{ name: `${statuses.featured.name} | ?help`, type: statuses.featured.type }], status: 'dnd' });
+		client.user.setPresence({ activities: [{ name: statuses.featured.name, type: statuses.featured.type }], status: 'dnd' });
 	}
 }
 

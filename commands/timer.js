@@ -1,29 +1,28 @@
 const Discord = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
-	name: 'timer',
-	description: 'set a timer',
-	category: 'utility',
-	cooldown: 1,
-	usage: '[seconds to count down to]',
-	args: true,
-	async execute(message, args) {
-		const parsed = Math.abs(parseFloat(args));
-		if (isNaN(parsed) || parsed > (2147483647 / 1000)) {
-			const embed = new Discord.MessageEmbed()
-				.setColor('#7F0000')
-				.setAuthor('please provide a valid number!')
-				.setFooter(`allowed numbers: 0 - ${2147483647 / 1000}`);
-			return message.channel.send({ embeds: [embed] });
-		}
-		const multiple = parsed != 1;
-		message.channel.send(`Timer for ${parsed} second(s) starts now!`);
+	data: new SlashCommandBuilder()
+		.setName('timer')
+		.setDescription('set a timer')
+		.addIntegerOption(option =>
+			option.setName('seconds')
+				.setDescription('seconds to count down to')
+				.setRequired(true))
+		.addIntegerOption(option =>
+			option.setName('minutes')
+				.setDescription('minutes to count down to')
+				.setRequired(false)),
+	defer: true,
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
+		const duration = interaction.options.getInteger('seconds') + ((interaction.options.getInteger('minutes') || 0) * 60);
+		interaction.editReply(`timer for \`${interaction.options.getInteger('minutes') || 0}:${interaction.options.getInteger('seconds')}\` starting now!`);
 		setTimeout(function() {
 			const embed = new Discord.MessageEmbed()
-				.setAuthor('timer completed!');
-			if (multiple) embed.setFooter(`for ${parsed} seconds`);
-			else embed.setFooter(`for ${parsed} second`);
-			message.channel.send({ embeds: [embed] });
-		}, parsed * 1000);
+				.setAuthor('timer completed!')
+				.setFooter(`for ${interaction.options.getInteger('minutes') || 0}:${interaction.options.getInteger('seconds')}`);
+			interaction.editReply({ embeds: [embed], ephemeral: true });
+		}, duration * 1000);
 	},
 };

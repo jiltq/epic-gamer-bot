@@ -16,6 +16,7 @@ module.exports = {
 	cooldown: 5,
 	args: false,
 	async execute(message, args, IPM) {
+		return;
 		let is_category;let is_command;
 
 		const categorydata = await IPM.return_json_data('C:/Users/Ethan/OneDrive/Desktop/Discord Bots/Epic Gamer Bot/Epic Gamer Bot Main/JSON/categorydata.json');

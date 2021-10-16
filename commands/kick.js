@@ -19,6 +19,7 @@ module.exports = {
 	args: true,
 	permissions: 'KICK_MEMBERS',
 	async execute(message, args) {
+		return;
 		const member = await getUserFromMention(args[0]);
 		member.kick().then(message.react('✅'));
 	},
