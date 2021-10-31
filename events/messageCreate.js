@@ -6,13 +6,16 @@ let lastTalked;
 module.exports = {
 	name: 'messageCreate',
 	async execute(message) {
+		if (message.content.startsWith('?')) {
+			return message.channel.send('try out egb\'s slash commands here: https://discord.gg/NnhuHJCFS9');
+		}
 		if (!message.author.bot && message.channel.type == 'GUILD_TEXT') {
 			await message.client.shard.broadcastEval(async (c, { $message, author, $guildName, color, channelName, $lastTalked, channelOriginId }) => {
+				return;
 				const $Discord = require('discord.js');
 				const channel = await c.channels.fetch('892599884107087892');
 				const embed = new $Discord.MessageEmbed()
 					.setColor(color)
-					.setFooter('This message was archived automatically')
 					.setTimestamp();
 				if ($message.content.split('\n')[0].length > 256) {
 					embed.setDescription($message.content);

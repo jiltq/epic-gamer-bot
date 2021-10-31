@@ -1,6 +1,5 @@
-const math = require('mathjs');
 const Discord = require('discord.js');
-const parser = math.parser();
+const parser = require('mathjs').parser();
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
@@ -12,10 +11,11 @@ module.exports = {
 				.setDescription('math expression')
 				.setRequired(true)),
 	async execute(interaction) {
+		const file = new Discord.MessageAttachment('C:/Users/Ethan/OneDrive/Desktop/Epic Gamer Bot/assets/calculate_icon.png');
 		const embed = new Discord.MessageEmbed()
-			.setAuthor(`${interaction.options.getString('expression')}`)
-			.setTitle(`**${parser.evaluate(interaction.options.getString('expression'))}**`)
+			.setAuthor('calculator', 'attachment://calculate_icon.png')
+			.setTitle(`${interaction.options.getString('expression')} = ${parser.evaluate(interaction.options.getString('expression'))}`)
 			.setFooter('powered by mathjs');
-		interaction.editReply({ embeds: [embed] });
+		interaction.reply({ embeds: [embed], files: [file], ephemeral: true });
 	},
 };

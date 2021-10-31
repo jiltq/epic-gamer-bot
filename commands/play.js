@@ -23,11 +23,16 @@ module.exports = {
 				.setDescription('whether or not to loop the song')
 				.setRequired(false)),
 	async execute(interaction) {
+		await interaction.deferReply();
 		const connection = joinVoiceChannel({
 			channelId: interaction.member.voice.channelId,
 			guildId: interaction.guildId,
+			selfDeaf: true,
+			selfMute: false,
 			adapterCreator: interaction.guild.voiceAdapterCreator,
 		});
+		let volume = 1.0;
+		let muted = false;
 		const video = (await yts(interaction.options.getString('name'))).videos[0];
 		const stream = ytdl(video.url, { filter: 'audioonly' });
 		const metadata = await ytdl.getInfo(video.url);
@@ -41,69 +46,46 @@ module.exports = {
 		const row = new Discord.MessageActionRow()
 			.addComponents(
 				new Discord.MessageButton()
-					.setEmoji('🎧')
-					.setLabel('join')
-					.setURL((await interaction.member.voice.channel.createInvite({ temporary: true, maxAge: seconds })).url)
-					.setStyle('LINK'),
-				new Discord.MessageButton()
-					.setEmoji('▶️')
+					.setEmoji('<:play:899356730750828575>')
 					.setCustomId('resume')
 					.setDisabled(true)
 					.setStyle('PRIMARY'),
 				new Discord.MessageButton()
-					.setEmoji('⏸️')
+					.setEmoji('<:pause:899357054437834753>')
 					.setCustomId('pause')
-					.setStyle('SECONDARY'),
+					.setStyle('PRIMARY'),
 				new Discord.MessageButton()
-					.setEmoji('⏹️')
+					.setEmoji('<:stop:899357930611175524>')
 					.setCustomId('stop')
-					.setStyle('DANGER'),
+					.setStyle('PRIMARY'),
 				new Discord.MessageButton()
-					.setEmoji('🔁')
+					.setEmoji('<:egb_loop:899358138849955920>')
 					.setCustomId('loop')
-					.setStyle('SECONDARY'),
+					.setStyle('PRIMARY'),
 			);
-		const volumeRow = new Discord.MessageActionRow()
+		const row2 = new Discord.MessageActionRow()
 			.addComponents(
-				new Discord.MessageSelectMenu()
-					.setCustomId('volume')
-					.addOptions([
-						{
-							label: 'mute',
-							value: '0.0',
-							emoji: '🔇',
-						},
-						{
-							label: 'half volume',
-							value: '0.5',
-							emoji: '🔈',
-						},
-						{
-							label: 'normal volume',
-							value: '1.0',
-							emoji: '🔉',
-							default: true,
-						},
-						{
-							label: '2x volume',
-							value: '2.0',
-							emoji: '🔊',
-						},
-						{
-							label: '10x volume',
-							description: 'why',
-							value: '10.0',
-							emoji: '📢',
-						},
-					]),
+				new Discord.MessageButton()
+					.setEmoji('<:volumemute:899370115483721809>')
+					.setCustomId('volumemute')
+					.setStyle('SECONDARY'),
+				new Discord.MessageButton()
+					.setEmoji('<:volumedown:899370640421830668>')
+					.setCustomId('volumedown')
+					.setStyle('SECONDARY'),
+				new Discord.MessageButton()
+					.setEmoji('<:volumeup:899360001481666610>')
+					.setCustomId('volumeup')
+					.setStyle('SECONDARY'),
 			);
 		const embed = new Discord.MessageEmbed()
 			.setAuthor('now playing..')
+			.setURL(video.url)
 			.setTitle(`**${video.title}**`)
 			.setDescription(`**by ${video.author.name}**`)
 			.setImage(video.thumbnail);
-		const response = await interaction.editReply({ embeds: [embed], components: [row, volumeRow], allowedMentions: { repliedUser: false } });
-		const filter = i => i.user.id == interaction.user.id && i.message.id == response.id;
+		const response = await interaction.editReply({ embeds: [embed], components: [row, row2], allowedMentions: { repliedUser: false } });
+		const filter = i => (i.user.id == interaction.user.id || i.user.id == '695662672687005737') && i.message.id == response.id;
 
 		const collector = interaction.channel.createMessageComponentCollector({ filter, time: seconds * 1000 });
 
@@ -111,35 +93,53 @@ module.exports = {
 			switch (i.customId) {
 			case 'resume':
 				player.unpause();
-				row.components[1].setDisabled(true);
-				row.components[2].setDisabled(false);
-				return i.update({ embeds: [embed], components: [row, volumeRow], allowedMentions: { repliedUser: false } });
+				row.components[0].setDisabled(true);
+				row.components[1].setDisabled(false);
+				break;
 			case 'pause':
 				player.pause();
-				row.components[1].setDisabled(false);
-				row.components[2].setDisabled(true);
-				return i.update({ embeds: [embed], components: [row, volumeRow], allowedMentions: { repliedUser: false } });
+				row.components[0].setDisabled(false);
+				row.components[1].setDisabled(true);
+				break;
 			case 'stop':
 				player.stop();
 				for (const component of row.components) {
 					component.setDisabled(true);
 				}
-				volumeRow.components[0].setDisabled(true);
-				return i.update({ embeds: [embed], components: [row, volumeRow], allowedMentions: { repliedUser: false } });
-			case 'volume':
-				resource.volume.setVolume(parseFloat(i.values[0]));
-				return i.update({ embeds: [embed], components: [row, volumeRow], allowedMentions: { repliedUser: false } });
+				for (const component of row2.components) {
+					component.setDisabled(true);
+				}
+				break;
+			case 'volumemute':
+				resource.volume.setVolume(!muted ? 0.0 : volume);
+				muted = !muted;
+				row2.components[1].setDisabled(muted || volume == 0.0);
+				row2.components[2].setDisabled(muted);
+				break;
+			case 'volumeup':
+				resource.volume.setVolume(volume + 0.5);
+				volume = volume + 0.5;
+				row2.components[1].setDisabled(volume == 0.0);
+				break;
+			case 'volumedown':
+				resource.volume.setVolume(volume - 0.5);
+				volume = volume - 0.5;
+				row2.components[1].setDisabled(volume == 0.0);
+				break;
 			case 'loop':
 
-				return;
+				break;
 			}
+			return i.update({ embeds: [embed], components: [row, row2] });
 		});
 		collector.on('end', async () =>{
 			for (const component of row.components) {
 				component.setDisabled(true);
 			}
-			volumeRow.components[0].setDisabled(true);
-			return response.edit({ embeds: [embed], components: [row, volumeRow], allowedMentions: { repliedUser: false } });
+			for (const component of row2.components) {
+				component.setDisabled(true);
+			}
+			return response.edit({ embeds: [embed], components: [row, row2] });
 		});
 		player.on(AudioPlayerStatus.Idle, () => connection.destroy());
 	},

@@ -17,6 +17,7 @@ module.exports = {
 				.setDescription('language to speak')
 				.setRequired(false)),
 	async execute(interaction) {
+		await interaction.deferReply();
 		const channel = interaction.member.voice.channel;
 		if (!channel) {
 			return interaction.editReply({ content: 'oi you gotta join a vc', ephemeral: true });

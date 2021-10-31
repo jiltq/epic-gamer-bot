@@ -11,6 +11,7 @@ module.exports = {
 				.setRequired(true)),
 	defer: true,
 	async execute(interaction) {
+		await interaction.deferReply();
 		const r = await yts(interaction.options.getString('query'));
 		const url = r.videos[0].url;
 		interaction.editReply(url);

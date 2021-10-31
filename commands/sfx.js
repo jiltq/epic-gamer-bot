@@ -28,6 +28,7 @@ module.exports = {
 			return option;
 		}),
 	async execute(interaction) {
+		await interaction.deferReply();
 		const connection = joinVoiceChannel({
 			channelId: interaction.member.voice.channelId,
 			guildId: interaction.guildId,

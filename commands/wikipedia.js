@@ -17,6 +17,7 @@ module.exports = {
 				.setRequired(true)),
 	defer: true,
 	async execute(interaction) {
+		await interaction.deferReply();
 		const querystr = querystring.stringify({ titles: interaction.options.getString('query') });
 		const result = await web.fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&${querystr}`);
 		const extract = result.query.pages[Object.keys(result.query.pages)[0]].extract;

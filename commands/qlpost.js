@@ -19,6 +19,7 @@ module.exports = {
 				.setDescription('description of the quote')
 				.setRequired(false)),
 	async execute(interaction) {
+		await interaction.deferReply();
 		const requiredId = 0;
 		const msg = await interaction.client.shard.broadcastEval(async (c, { $image, $channelId, $author, $guildName, $title, $origin }) => {
 			const $Discord = require('discord.js');
@@ -28,7 +29,7 @@ module.exports = {
 				.setColor('RANDOM')
 				.setImage($image)
 				.setTimestamp()
-				.setFooter('want to upload your own quote? use "?qlpost <url>"!');
+				.setFooter('want to upload your own quote? use "/qlpost <url>"!');
 			if ($title) {
 				embed.setTitle($title);
 			}

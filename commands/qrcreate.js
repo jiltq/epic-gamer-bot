@@ -11,11 +11,10 @@ module.exports = {
 				.setDescription('text to turn into a qr code')
 				.setRequired(true)),
 	async execute(interaction) {
-		await interaction.deferReply();
 		const query = querystring.stringify({ data: interaction.options.getString('text') });
 		const embed = new Discord.MessageEmbed()
 			.setImage(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&${query}`)
 			.setFooter('powered by goqr.me');
-		interaction.editReply({ embeds: [embed] });
+		interaction.reply({ embeds: [embed] });
 	},
 };
