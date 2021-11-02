@@ -92,6 +92,11 @@ module.exports = {
 		),
 	async execute(interaction) {
 		await interaction.deferReply();
+		const result = await web.fetch(`https://weather.cc.api.here.com/weather/1.0/report.json?product=observation&name=Berlin-Tegel`, {
+			method: 'GET',
+			headers: { 'Authorization': 'Bearer ' + 'RohEThL5yZWKvPwoZZr3Wmu-egaZfyD_BN9HvUnKvrE' },
+		});
+		console.log(result);
 		const points = await web.fetch(`https://api.weather.gov/points/${interaction.options.getInteger('latitude')},${interaction.options.getInteger('longitude')}`);
 		const forecasts = (await web.fetch(points.properties.forecast)).properties.periods;
 		const embed = new Discord.MessageEmbed()

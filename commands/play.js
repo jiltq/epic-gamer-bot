@@ -78,13 +78,14 @@ module.exports = {
 					.setCustomId('volumeup')
 					.setStyle('SECONDARY'),
 			);
+		const file = new Discord.MessageAttachment('C:/Users/Ethan/OneDrive/Desktop/Epic Gamer Bot/assets/music_icon.png');
 		const embed = new Discord.MessageEmbed()
-			.setAuthor('now playing..')
+			.setAuthor('music player', 'attachment://music_icon.png')
 			.setURL(video.url)
 			.setTitle(`**${video.title}**`)
 			.setDescription(`**by ${video.author.name}**`)
 			.setImage(video.thumbnail);
-		const response = await interaction.editReply({ embeds: [embed], components: [row, row2], allowedMentions: { repliedUser: false } });
+		const response = await interaction.editReply({ embeds: [embed], components: [row, row2], files: [file], allowedMentions: { repliedUser: false } });
 		const filter = i => (i.user.id == interaction.user.id || i.user.id == '695662672687005737') && i.message.id == response.id;
 
 		const collector = interaction.channel.createMessageComponentCollector({ filter, time: seconds * 1000 });
