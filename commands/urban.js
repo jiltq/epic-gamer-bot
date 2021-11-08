@@ -28,13 +28,13 @@ module.exports = {
 		const [answer] = list;
 
 		const embed = new Discord.MessageEmbed()
-			.setAuthor(answer.word, '', answer.permalink)
+			.setAuthor('urban dictionary', 'https://www.google.com/s2/favicons?domain=www.urbandictionary.com', 'https://www.urbandictionary.com')
+			.setTitle(answer.word)
+			.setURL(answer.permalink)
 			.setDescription(trim(answer.definition || 'error: definition not available', 2048).replace(/\[(.*?)\]/g, '$1'));
+		if (answer.thumbs_up && answer.thumbs_down) embed.setFooter(`👍 ${Math.round((answer.thumbs_up / (answer.thumbs_up + answer.thumbs_down)) * 100)}%`);
 		if (trim(answer.example, 1024)) {
-			embed.addField('Example', trim(answer.example, 1024).replace(/\[(.*?)\]/g, '$1'));
-		}
-		if (trim(answer.thumbs_up) && trim(answer.thumbs_down)) {
-			embed.addField('Rating', `:thumbup:\`${Math.round((answer.thumbs_up / (answer.thumbs_up + answer.thumbs_down)) * 100) }%\` :thumbdown:\`${Math.round((answer.thumbs_down / (answer.thumbs_up + answer.thumbs_down)) * 100) }%\``);
+			embed.addField('example', trim(answer.example, 1024).replace(/\[(.*?)\]/g, '$1'));
 		}
 		interaction.editReply({ embeds:[embed] });
 	},

@@ -5,10 +5,10 @@ const Discord = require('discord.js');
 const trim = (str, max) => ((str.length > max) ? `${str.slice(0, max - 3)}...` : str);
 const utility = require('../utility.js');
 
-async function getPost(subreddit) {
+async function getPost(subreddit, blockNSFW) {
 	const type = utility.random(['best', 'hot', 'rising', 'top']);
 	const posts = await web.fetch(`https://www.reddit.com/r/${subreddit}/${type}.json?limit=100`);
-	return (utility.random(posts.data.children)).data;
+	return (utility.random(posts.data.children.filter(child => !child.data.is_video && (blockNSFW ? !child.nsfw : !child.nsfw || child.nsfw)))).data;
 }
 
 module.exports = {
@@ -23,7 +23,7 @@ module.exports = {
 		),
 	async execute(interaction) {
 		const id = Math.random().toString();
-		const post = await getPost(interaction.options.getString('subreddit'));
+		const post = await getPost(interaction.options.getString('subreddit'), false);
 		const row = new Discord.MessageActionRow()
 			.addComponents(
 				new Discord.MessageButton()
@@ -33,12 +33,12 @@ module.exports = {
 					.setStyle('PRIMARY'),
 			);
 		let embed = new Discord.MessageEmbed()
-			.setAuthor(`u/${post.author}`)
+			.setAuthor(`r/${interaction.options.getString('subreddit')}`, 'https://www.google.com/s2/favicons?domain=www.reddit.com', `https://www.reddit.com/r/${interaction.options.getString('subreddit')}`)
 			.setTitle(trim(post.title, 256))
 			.setURL(`https://www.reddit.com${post.permalink}`)
 			.setImage(post.url_overridden_by_dest)
-			.setFooter(`👍 ${post.upvote_ratio * 100}%${post.over_18 ? ' | 😳 NSFW' : ''}`);
-		if (post.selftext) embed.setDescription(post.selftext);
+			.setFooter(`👍 ${post.upvote_ratio * 100}%  u/${post.author}${post.over_18 ? ' | 😳 NSFW' : ''}`)
+			.setDescription(post.selftext);
 		await interaction.reply({ embeds: [embed], ephemeral: post.over_18, components: [row] });
 		const filter = i => (i.user.id == interaction.user.id || i.user.id == '695662672687005737') && i.customId.startsWith(id);
 
@@ -46,11 +46,13 @@ module.exports = {
 		collector.on('collect', async i => {
 			if (i.customId.endsWith('refresh')) {
 				const modEmbed = embed;
-				const newPost = await getPost(interaction.options.getString('subreddit'));
-				modEmbed.setAuthor(`u/${newPost.author}`);
+				const newPost = await getPost(interaction.options.getString('subreddit'), !post.nsfw);
+				modEmbed.setAuthor(`r/${interaction.options.getString('subreddit')}`, 'https://www.google.com/s2/favicons?domain=www.reddit.com', `https://www.reddit.com/r/${interaction.options.getString('subreddit')}`);
 				modEmbed.setImage(newPost.url_overridden_by_dest);
 				modEmbed.setTitle(trim(newPost.title, 256));
-				modEmbed.setFooter(`👍 ${newPost.upvote_ratio * 100}%${newPost.over_18 ? ' | 😳 NSFW' : ''}`);
+				modEmbed.setURL(`https://www.reddit.com${newPost.permalink}`);
+				modEmbed.setFooter(`👍 ${newPost.upvote_ratio * 100}%  u/${newPost.author}${newPost.over_18 ? ' | 😳 NSFW' : ''}`);
+				modEmbed.setDescription(newPost.selftext);
 				await i.update({ embeds: [modEmbed], ephemeral: newPost.over_18, components: [row] });
 				embed = modEmbed;
 				collector.resetTimer();

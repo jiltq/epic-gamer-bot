@@ -6,7 +6,6 @@ module.exports = {
 		if (!mention) return;
 
 		if (mention.startsWith('<@') && mention.endsWith('>')) {
-			const { client } = require(require.main.filename);
 			mention = mention.slice(2, -1);
 
 			if (mention.startsWith('!')) {
@@ -19,5 +18,8 @@ module.exports = {
 	random(array) {
 		if (!array || array.length < 1) return null;
 		return array[Math.floor(Math.random() * array.length)];
+	},
+	removeDupes(array) {
+		return [...new Set(array)];
 	},
 };

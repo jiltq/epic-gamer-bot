@@ -15,6 +15,7 @@ module.exports = {
 				.setRequired(false)),
 	defer: true,
 	async execute(interaction) {
+		return await interaction.reply('this command is being redone!!! sorry for the inconvenience <3 -jiltq');
 		await interaction.deferReply({ ephemeral: true });
 		const duration = interaction.options.getInteger('seconds') + ((interaction.options.getInteger('minutes') || 0) * 60);
 		interaction.editReply(`timer for \`${interaction.options.getInteger('minutes') || 0}:${interaction.options.getInteger('seconds')}\` starting now!`);
