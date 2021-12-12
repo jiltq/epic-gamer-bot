@@ -27,7 +27,7 @@ module.exports = {
 		const title = result.query.pages[Object.keys(result.query.pages)[0]].title;
 
 		const embed = new Discord.MessageEmbed()
-			.setAuthor('wikipedia', 'https://www.google.com/s2/favicons?domain=en.wikipedia.org')
+			.setAuthor('wikipedia', 'https://www.google.com/s2/favicons?domain_url=en.wikipedia.org', 'https://en.wikipedia.org')
 			.setTitle(title)
 			.addField('definition', trim(newtext || 'error: definition not available', 1024))
 			.setFooter('powered by en.wikipedia.org');

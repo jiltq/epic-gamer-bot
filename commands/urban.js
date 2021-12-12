@@ -28,7 +28,7 @@ module.exports = {
 		const [answer] = list;
 
 		const embed = new Discord.MessageEmbed()
-			.setAuthor('urban dictionary', 'https://www.google.com/s2/favicons?domain=www.urbandictionary.com', 'https://www.urbandictionary.com')
+			.setAuthor('urban dictionary', 'https://www.google.com/s2/favicons?domain_url=www.urbandictionary.com', 'https://www.urbandictionary.com')
 			.setTitle(answer.word)
 			.setURL(answer.permalink)
 			.setDescription(trim(answer.definition || 'error: definition not available', 2048).replace(/\[(.*?)\]/g, '$1'));

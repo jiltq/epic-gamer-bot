@@ -2,10 +2,10 @@ const fs = require('fs');
 const Discord = require('discord.js');
 
 const commands = new Discord.Collection();
-const commandFiles = fs.readdirSync('C:/Users/Ethan/OneDrive/Desktop/Epic Gamer Bot/commands').filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync(`${process.cwd()}/commands`).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-	const command = require(`C:/Users/Ethan/OneDrive/Desktop/Epic Gamer Bot/commands/${file}`);
+	const command = require(`${process.cwd()}/commands/${file}`);
 	if (command.data) {
 		commands.set(command.data.name, command);
 	}

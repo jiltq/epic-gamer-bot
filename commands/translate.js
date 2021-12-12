@@ -31,12 +31,10 @@ module.exports = {
 		const from = languages.getCode(interaction.options.getString('from')) || 'auto';
 		const to = languages.getCode(interaction.options.getString('to')) || 'en';
 		const res = await translate(trim(interaction.options.getString('text'), 5000), { from: from, to: to });
-		const file = new Discord.MessageAttachment('C:/Users/Ethan/OneDrive/Desktop/Epic Gamer Bot/assets/gtranslate_icon.png');
 		const embed = new Discord.MessageEmbed()
-			.setAuthor('translator', 'attachment://gtranslate_icon.png')
+			.setAuthor('google translate', 'https://www.google.com/s2/favicons?domain_url=translate.google.com', 'https://translate.google.com')
 			.addField(`:flag_${res.from.language.iso == 'en' ? 'us' : res.from.language.iso}: ${languages[res.from.language.iso]}`, trim(res.from.text.value || interaction.options.getString('text'), 1024), true)
-			.addField(`:flag_${to == 'en' ? 'us' : to}: ${languages[to]}`, trim(res.text, 1024), true)
-			.setFooter('powered by google translate');
-		interaction.reply({ embeds: [embed], files: [file] });
+			.addField(`:flag_${to == 'en' ? 'us' : to}: ${languages[to]}`, trim(res.text, 1024), true);
+		interaction.reply({ embeds: [embed] });
 	},
 };

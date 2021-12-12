@@ -47,6 +47,7 @@ module.exports = {
 		}, $guildName: interaction.guild.name, $title: interaction.options.getString('title'), $origin: `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${interaction.id}` } });
 		const confirmEmbed = new Discord.MessageEmbed()
 			.setTitle('successfully uploaded your quote!')
+			.setImage(interaction.options.getString('link'))
 			.setColor('#0dbc79');
 		const confirmRow = new Discord.MessageActionRow()
 			.addComponents(

@@ -1,29 +1,36 @@
 const fetch = require('node-fetch');
-const { spotifyId, spotifySecret } = require('./config.json');
 const querystring = require('querystring');
+const utility = require('./utility.js');
+const web = new (require('./webHelper.js'))();
 
 class Spotify {
 	constructor(joe) {
 		this.joe = joe;
 	}
-	async fetch(url, options) {
+	async fetch(url, options = {}) {
 		if (!options.headers) options.headers = {};
-		const tokenBody = querystring.stringify({ grant_type: 'client_credentials' });
+		const token = await web.spotifyAuth();
 
-		const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
-			method: 'post',
-			body: tokenBody,
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				'Authorization': 'Basic ' + (new Buffer(spotifyId + ':' + spotifySecret).toString('base64')),
-			},
-		});
-		const { access_token } = JSON.parse(JSON.stringify(await (tokenResponse).json()));
-		options.headers['Authorization'] = `Bearer ${access_token}`;
+		options.headers['Authorization'] = `Bearer ${token}`;
 		options.headers['Content-Type'] = 'application/json';
 
 		const response = await fetch(url, options);
 		return JSON.parse(JSON.stringify(await (response).json()));
+	}
+	async getSuggestions(id) {
+		const Json = new (require('./jsonHelper.js'))(`${process.cwd()}/JSON/songSuggestions.json`);
+		const data = await Json.read();
+		const userData = data.users[id];
+		if (!userData) {
+			throw new Error('bruh this dude doesnt even have any data');
+		}
+		const suggestQuery = querystring.stringify({
+			limit: 100,
+			seed_artists: userData.artists.slice(-5),
+			seed_tracks: userData.tracks.slice(-5),
+		});
+		const suggestions = await this.fetch(`https://api.spotify.com/v1/recommendations?${suggestQuery}`, {});
+		return suggestions;
 	}
 }
 module.exports = Spotify;

@@ -6,7 +6,7 @@ const fsp = require('fs').promises;
 const fs = require('fs');
 const Discord = require('discord.js');
 
-const editFolder = 'C:/Users/Ethan/OneDrive/Desktop/Epic Gamer Bot/editFiles/';
+const editFolder = `${process.cwd()}/editFiles/`;
 
 const _getAllFilesFromFolder = function(dir) {
 	let results = [];

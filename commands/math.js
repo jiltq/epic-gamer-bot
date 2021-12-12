@@ -11,7 +11,7 @@ module.exports = {
 				.setDescription('math expression')
 				.setRequired(true)),
 	async execute(interaction) {
-		const file = new Discord.MessageAttachment('C:/Users/Ethan/OneDrive/Desktop/Epic Gamer Bot/assets/calculate_icon.png');
+		const file = new Discord.MessageAttachment(`${process.cwd()}/assets/calculate_icon.png`);
 		const embed = new Discord.MessageEmbed()
 			.setAuthor('calculator', 'attachment://calculate_icon.png')
 			.setTitle(`${interaction.options.getString('expression')} = ${parser.evaluate(interaction.options.getString('expression'))}`)

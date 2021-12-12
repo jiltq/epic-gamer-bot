@@ -28,6 +28,7 @@ module.exports = {
 		const images = await google.scrape(interaction.options.getString('query'), 100);
 		const image = utility.random(images);
 		const embed = new Discord.MessageEmbed()
+			.setAuthor('google images', 'https://www.google.com/s2/favicons?domain=images.google.com', 'https://images.google.com')
 			.setTitle(interaction.options.getString('query'))
 			.setURL(image.source)
 			.setImage(image.url);
