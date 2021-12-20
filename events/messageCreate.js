@@ -1,6 +1,8 @@
 const trim = (str, max) => ((str.length > max) ? `${str.slice(0, max - 3)}...` : str);
 let lastTalked;
 
+const Json = require('../jsonHelper.js');
+
 const archiveChannel = '892599884107087892';
 
 const HMMMMroles = [
@@ -14,6 +16,20 @@ module.exports = {
 	name: 'messageCreate',
 	async execute(message) {
 		if (!message.author.bot && message.channel.type == 'GUILD_TEXT') {
+			const userDataJson = new Json(`${process.cwd()}/JSON/userData.json`);
+			const userData = await userDataJson.read();
+
+			if (!userData.users[message.author.id]) {
+				userData.users[message.author.id] = { games: [] };
+			}
+			if (!userData.users[message.author.id].messageCount) {
+				userData.users[message.author.id].messageCount = 1;
+			}
+			else {
+				userData.users[message.author.id].messageCount += 1;
+			}
+			await userDataJson.write(userData);
+
 			await message.client.shard.broadcastEval(async (c, { $message, $lastTalked, $attachment, $archiveChannel, $guild, $author, $originChannel }) => {
 				const $Discord = require('discord.js');
 				const channel = await c.channels.fetch($archiveChannel);

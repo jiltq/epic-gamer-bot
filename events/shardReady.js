@@ -1,8 +1,8 @@
-const visuals = require('../visuals.js');
+const logHelper = require('../logHelper.js');
 
 module.exports = {
 	name: 'shardReady',
 	async execute(id) {
-		visuals.log(module, 'success', `Shard ${id} is now ready`);
+		logHelper.log(module.exports, 'success', `Shard ${id} is now ready`);
 	},
 };

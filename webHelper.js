@@ -58,8 +58,23 @@ class Web {
 		return access_token;
 	}
 	async hereAuth() {
-		const tokenResponse = await fetch(authOptions.here.url, authOptions.here.options);
-		return JSON.parse(JSON.stringify(await (tokenResponse).json()));
+		const body = querystring.stringify({ grant_type: 'client_credentials' });
+		const response = await fetch('https://account.api.here.com/oauth2/token', {
+			method: 'post',
+			body: body,
+			headers: {
+				'oauth_consumer_key': 'ck0uwfFcsK1ibMXV7gjyFg',
+				'oauth_nonce': Math.random().toString(),
+				'oauth_signature_method': 'HMAC-SHA256',
+				'oauth_timestamp': Date.now(),
+				'oauth_version': '1.0',
+				'Authorization': 'OAuth',
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'client_id': 'GsBbYxBKcEaTBwYdFt1G',
+				'client_secret': 'GV6VBhsnUmoWz16fTHYaEwHWJuuAAdXiuHn8vkigaG_UcEt-356o4KAor2Ri9WlBsVj3hG0iBBXIwMH6_hWhFA',
+			},
+		});
+		return JSON.parse(JSON.stringify(await (response).json()));
 	}
 }
 module.exports = Web;

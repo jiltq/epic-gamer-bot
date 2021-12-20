@@ -1,8 +1,8 @@
-const visuals = require('../visuals.js');
+const logHelper = require('../logHelper.js');
 
 module.exports = {
 	name: 'shardError',
 	async execute(error, id) {
-		visuals.log(module, 'error', `Shard ${id} encountered a connection error  ||  ${error.message}`);
+		logHelper.log(module.exports, 'error', `Shard ${id} encountered a connection error  ||  ${error.message}`);
 	},
 };

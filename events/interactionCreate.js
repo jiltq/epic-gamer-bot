@@ -1,5 +1,8 @@
 const fs = require('fs');
 const Discord = require('discord.js');
+const logHelper = require('../logHelper.js');
+
+const archiveChannel = '892599884107087892';
 
 const commands = new Discord.Collection();
 const commandFiles = fs.readdirSync(`${process.cwd()}/commands`).filter(file => file.endsWith('.js'));
@@ -19,11 +22,25 @@ module.exports = {
 		const command = commands.get(interaction.commandName);
 
 		if (!command) return;
+		logHelper.log(module.exports, 'default', `User "${interaction.user.username}" executed command "${interaction.commandName}"`);
+
+		/*
+		console.log(interaction);
+		await interaction.client.shard.broadcastEval(async (c, { $interaction, $test }) => {
+			console.log($interaction);
+			console.log($test);
+		}, { shard: 0, context: {
+			$interaction: interaction,
+			$test: { ...interaction },
+		} });
+		*/
+
 		try {
 			await command.execute(interaction);
 		}
 		catch (error) {
-			console.error(error);
+			logHelper.log(module.exports, 'error', `there was an unexpected error while executing command "${interaction.commandName}"`);
+			logHelper.log(module.exports, 'error', error);
 			const errorEmbed = new Discord.MessageEmbed()
 				.setTitle('there was an error while executing this command :(')
 				.setFooter('try not doing that')

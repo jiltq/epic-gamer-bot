@@ -22,7 +22,7 @@ class Spotify {
 		const data = await Json.read();
 		const userData = data.users[id];
 		if (!userData) {
-			throw new Error('bruh this dude doesnt even have any data');
+			return { tracks: [] };
 		}
 		const suggestQuery = querystring.stringify({
 			limit: 100,
