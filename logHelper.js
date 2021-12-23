@@ -2,7 +2,7 @@ const chalk = require('chalk');
 
 const themes = {
 	default: '#b9bfca',
-	error: '#e88388',
+	error: '#ED4245',
 	warn: '#dbab79',
 	success: '#0dbc79',
 };

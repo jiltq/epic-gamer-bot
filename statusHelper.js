@@ -3,6 +3,7 @@ const utility = require('./utility.js');
 
 async function status_update(client, statuses) {
 	if (!statuses.featured.name) {
+		/*
 		const userDataJson = new Json(`${process.cwd()}/JSON/userData.json`);
 		const userData = await userDataJson.read();
 
@@ -18,14 +19,17 @@ async function status_update(client, statuses) {
 			}
 		}
 		games = utility.removeDupes(games);
-
-		/*
+		*/
 
 		const type = utility.random(Object.keys(statuses.activities));
 		const activity = utility.random(statuses.activities[type]);
-		client.user.setPresence({ activities: [{ name: activity, type: type }], status: 'dnd' });
-		*/
-		client.user.setPresence({ activities: [{ name: utility.random(games), type: 'PLAYING' }], status: 'dnd' });
+
+		if (type == 'STREAMING') {
+			client.user.setPresence({ activities: [{ name: activity, type: type, url: utility.random(statuses.streamingLinks) }], status: 'dnd' });
+		}
+		else {
+			client.user.setPresence({ activities: [{ name: activity, type: type }], status: 'dnd' });
+		}
 	}
 	else {
 		client.user.setPresence({ activities: [{ name: statuses.featured.name, type: statuses.featured.type }], status: 'dnd' });

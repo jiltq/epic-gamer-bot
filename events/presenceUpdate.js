@@ -117,7 +117,7 @@ module.exports = {
 			*/
 		}
 		else if (newActivity) {
-			if (newActivity.type != 'CUSTOM') {
+			if (newActivity.type == 'PLAYING') {
 				if (!userData.users[newPresence.user.id].games.find(game => game.name == newActivity.name) && newActivity.type != 'CUSTOM') {
 					userData.users[newPresence.user.id].games.push({ name: newActivity.name, timesPlayed: 1 });
 				}
@@ -151,22 +151,18 @@ module.exports = {
 					}
 				}
 			}
-			if (newActivity.type != 'CUSTOM') {
+			if (newActivity.type == 'PLAYING') {
 				userData.users[newPresence.user.id].gameUpdates.push({ time: Date.now(), game: newActivity.name, update: 'startPlaying' });
 			}
 		}
 		else if (oldActivity) {
-			if (oldActivity.type != 'CUSTOM') {
-				if (!userData.users[newPresence.user.id].games.find(game => game.name == oldActivity.name) && oldActivity.type != 'CUSTOM') {
-					userData.users[newPresence.user.id].games.push({ name: oldActivity.name, timesPlayed: 1 });
-				}
+			if (!userData.users[newPresence.user.id].games.find(game => game.name == oldActivity.name) && oldActivity.type != 'CUSTOM') {
+				userData.users[newPresence.user.id].games.push({ name: oldActivity.name, timesPlayed: 1 });
 			}
 			update = `is no longer ${typeReformat[oldActivity.type]} ${oldActivity.name}`;
 			files.push(cancelIcon);
 			embed.setThumbnail('attachment://cancel_icon.png');
-			if (oldActivity.type != 'CUSTOM') {
-				userData.users[newPresence.user.id].gameUpdates.push({ time: Date.now(), game: oldActivity.name, update: 'stopPlaying' });
-			}
+			userData.users[newPresence.user.id].gameUpdates.push({ time: Date.now(), game: oldActivity.name, update: 'stopPlaying' });
 		}
 		else if (newPresence.activities.length == 0 && oldPresence.activities.length != 0) {
 			update = 'is no longer doing anything';

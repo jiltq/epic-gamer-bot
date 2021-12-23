@@ -16,19 +16,18 @@ function getGame2Play(routines) {
 	const time = Date.now();
 	const hours = new Date().getHours();
 	const day = new Date().getDay();
-	const compatible = Object.values(routines).filter(routine => new Date(routine.start).getHours() <= hours && new Date(routine.end).getHours() >= hours && routine.day == day);
-	if (compatible.length == 0) return null;
-	return utility.random(compatible);
+	const compatible = routines.filter(routine => new Date(routine.start).getHours() <= hours && new Date(routine.end).getHours() >= hours /*&& routine.day == day*/);
+	if (compatible.length == 0) return [];
+	return compatible;
 }
-function formatRoutines(userData) {
-	const gameRoutines = {};
+function formatRoutines(userData, userId) {
+	const gameRoutines = [];
 	for (let i = 0;i < userData.gameUpdates.length;i++) {
-		if (!Object.keys(gameRoutines).includes(userData.gameUpdates[i].game)) gameRoutines[userData.gameUpdates[i].game] = [];
 		if (i > 0) {
 			const day = new Date(userData.gameUpdates[i].time).getDay();
 
 			if (userData.gameUpdates[i - 1].update == 'startPlaying' && userData.gameUpdates[i].update == 'stopPlaying') {
-				gameRoutines[userData.gameUpdates[i].game].push({ type: 'spentPlaying', game: userData.gameUpdates[i].game, day: day, start: userData.gameUpdates[i - 1].time, end: userData.gameUpdates[i].time });
+				gameRoutines.push({ type: 'spentPlaying', game: userData.gameUpdates[i].game, day: day, start: userData.gameUpdates[i - 1].time, end: userData.gameUpdates[i].time, userId: userId });
 			}
 		}
 	}
@@ -44,6 +43,9 @@ module.exports = {
 		if (interaction.user.id != '695662672687005737') return interaction.editReply({ content: 'ERR UNAUTHORIZED', ephemeral: true });
 		const userDataJson = new Json(`${process.cwd()}/JSON/userData.json`);
 		const userData = await userDataJson.read();
+
+		const eventDataJson = new Json(`${process.cwd()}/JSON/eventData.json`);
+		const eventData = await eventDataJson.read();
 
 		const games0 = [];
 
@@ -69,13 +71,13 @@ module.exports = {
 			}
 		}
 
-		console.log(games0);
+		// console.log(games0);
 
 		games0.sort(function(a, b) {
 			return (b.timesPlayed * b.players.length) - (a.timesPlayed * a.players.length);
 		});
 
-		console.log(formatRoutines(userData.users[interaction.user.id]));
+		// console.log(formatRoutines(userData.users[interaction.user.id]));
 
 		/*
 		const dataEmbed = new Discord.MessageEmbed()
@@ -93,12 +95,14 @@ module.exports = {
 
 		for (let i = 0;i < Object.keys(userData.users).length;i++) {
 			const data = Object.values(userData.users)[i];
+			const userId = Object.keys(userData.users)[i];
 			if (data.gameUpdates) {
-				const formatted = formatRoutines(data);
-				gameOptions.push(getGame2Play(formatted));
+				const formatted = formatRoutines(data, userId);
+				gameOptions.push(...getGame2Play(formatted));
 			}
 		}
 		gameOptions = gameOptions.filter(game => game != null);
+		gameOptions = gameOptions.filter(game => gameOptions.filter(game2 => game2.game == game.game && game2.userId != game.userId).length >= 2);
 
 		let selectedGame;
 		let alternative = false;
@@ -109,20 +113,30 @@ module.exports = {
 		else {
 			selectedGame = utility.random(gameOptions);
 		}
+		const playerMembers = [];
+		for (let i = 0;i < gameOptions.filter(game => game.game == selectedGame.game).length;i++) {
+			const thing = gameOptions.filter(game => game.game == selectedGame.game)[i];
+			const member = await interaction.guild.members.fetch(thing.userId);
+			playerMembers.push(member);
+		}
 
-		const image = (await google.scrape(selectedGame.name, 1))[0];
+		const image = (await google.scrape(selectedGame[alternative ? 'name' : 'game'], 1))[0];
 
 		const embed = new Discord.MessageEmbed()
 			.setAuthor('auto events', 'attachment://event_icon.png')
-			.setTitle(selectedGame.name)
+			.setTitle(selectedGame[alternative ? 'name' : 'game'])
+			.setDescription(`**👥 players** - ${utility.removeDupes(playerMembers.map(member => member.user.username)).join(', ')}`)
 			.setColor('#2f3136')
 			.setImage(image.url)
-			.setFooter(`👥 players: ${selectedGame.players.length}`);
+			.setTimestamp();
 
 		if (alternative) {
 			embed.setDescription('⚠️ no routines have been established for this current time!\nusing alternative random game');
 		}
+		eventData.lastEvent = Date.now();
+		eventData.nextEvent = Date.now() + eventData.cooldown;
 
 		interaction.editReply({ embeds: [embed], files: [eventIcon] });
+		await eventDataJson.write(eventData);
 	},
 };

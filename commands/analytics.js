@@ -46,12 +46,13 @@ module.exports = {
 		.setName('analytics')
 		.setDescription('nothing to see here'),
 	async execute(interaction) {
-		if (interaction.user.id != '695662672687005737') return interaction.editReply({ content: 'ERR UNAUTHORIZED', ephemeral: true });
+		if (interaction.user.id != '695662672687005737') return interaction.reply({ content: 'ERR UNAUTHORIZED' });
 		const userDataJson = new Json(`${process.cwd()}/JSON/userData.json`);
 		const userData = await userDataJson.read();
 
 		const embed = new Discord.MessageEmbed()
 			.setAuthor('egb analytics', 'attachment://analytics_icon.png')
+			.setColor('#2f3136')
 			.setTitle('user data dashboard');
 
 		const gameUpdatesSum = Object.values(userData.users).map(user => user.gameUpdates ? user.gameUpdates.length : 0).reduce((partial_sum, a) => partial_sum + a, 0);
@@ -69,6 +70,7 @@ module.exports = {
 			{ key: 'messages recorded', value: messageSum },
 			{ key: 'avg. messages per user', value: (messageSum / Object.keys(userData.users).length).toFixed(2) },
 			{ key: 'est. routines recorded', value: gameUpdatesSum / 2 },
+			{ key: 'est. avg. routines per day', value: ((gameUpdatesSum / 2) / 7).toFixed(2) },
 		];
 		stats.sort(function(a, b) {
 			return b.value - a.value;

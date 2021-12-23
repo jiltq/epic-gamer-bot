@@ -1,8 +1,8 @@
-const visuals = require('../visuals.js');
+const logHelper = require('../logHelper.js');
 
 module.exports = {
 	name: 'shardReconnecting',
 	async execute(id) {
-		visuals.log(module, 'warning', `Shard ${id} is attempting to reconnect or re-identify`);
+		logHelper.log(module.exports, 'warn', `Shard ${id} is attempting to reconnect or re-identify`);
 	},
 };
