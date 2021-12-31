@@ -2,6 +2,7 @@ const { ShardingManager } = require('discord.js');
 const { token, username } = require('./config.json');
 const logHelper = require('./logHelper.js');
 const { Worker } = require('worker_threads');
+const { defaultServerId } = require('./config.json');
 
 const _file = './bot.js';
 const _amount = 2;
@@ -13,9 +14,11 @@ module.exports = {
 };
 logHelper.log(module.exports, 'default', `${username} initialized..`);
 
+/*
 const slashCommandWorker = new Worker(`${process.cwd()}/slashCommandManager.js`, {
 	workerData: {
 		method: 'refresh',
+		serverId: defaultServerId,
 	},
 });
 slashCommandWorker.on('message', async message =>{
@@ -32,6 +35,7 @@ slashCommandWorker.on('message', async message =>{
 		break;
 	}
 });
+*/
 
 const manager = new ShardingManager(_file, { token: token });
 

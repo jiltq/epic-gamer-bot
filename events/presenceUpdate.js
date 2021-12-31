@@ -77,6 +77,7 @@ module.exports = {
 			'idle': '#faa81a',
 			'offline': '#747f8d',
 			'dnd': '#ed4245',
+			'custom': '#9b59b6',
 		};
 
 		if (!oldPresence) {
@@ -94,12 +95,14 @@ module.exports = {
 		let row;
 
 		let isImportant = false;
+		let statusUpdate = false;
+		let customStatus = false;
 
 		const embed = new Discord.MessageEmbed()
 			.setColor('#2f3136');
 
 		if (newPresence.status != oldPresence.status) {
-			update = `is now ${newPresence.status}`;
+			update = `is now ${chalk.hex(statusColors[newPresence.status])(newPresence.status)}`;
 			files.push(statusIcons[newPresence.status]);
 			embed.setThumbnail(`attachment://${newPresence.status}_icon.png`);
 			embed.setColor(statusColors[newPresence.status]);
@@ -126,7 +129,13 @@ module.exports = {
 				}
 			}
 			isImportant = true;
-			update = `is now ${typeReformat[newActivity.type]} ${newActivity.name}`;
+			if (newActivity.type == 'CUSTOM') {
+				customStatus = true;
+				logHelper.logAdvanced(module.exports, `${chalk.hex(newPresence.member.displayHexColor)(newPresence.user.username)} ${chalk.hex(logHelper.themes.default)('is now')} ${chalk.hex(statusColors.custom)(`"${newActivity.state}"`)}`);
+			}
+			else {
+				update = `is now ${typeReformat[newActivity.type]} ${newActivity.name}`;
+			}
 			if (newActivity.assets) {
 				embed.setThumbnail(newActivity.assets.largeImageURL());
 			}
@@ -170,7 +179,9 @@ module.exports = {
 			embed.setThumbnail('attachment://cancel_icon.png');
 		}
 		if (!update) return;
-		logHelper.log(module.exports, 'default', `${newPresence.user.username} ${update}`);
+		if (!statusUpdate || customStatus) {
+			logHelper.log(module.exports, 'default', `${chalk.hex(newPresence.member.displayHexColor != '#000000' ? newPresence.member.displayHexColor : '#FFFFFF')(newPresence.user.username)} ${update}`);
+		}
 
 		embed
 			.setAuthor('status update', newPresence.user.avatarURL())
@@ -183,6 +194,6 @@ module.exports = {
 				}
 			}
 		}
-		await userDataJson.write(userData);
+		// await userDataJson.write(userData);
 	},
 };

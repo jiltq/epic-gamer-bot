@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>egb oauth2 test</title>
+    <link rel="icon" type="image/png" href="https://cdn.discordapp.com/avatars/695662672687005737/1df262cf976b36df54ab8d19198da17e.png">
+</head>
+<body>
+    <h1>It works!</h1>
+	<div id="info">
+		Hoi!
+	</div>
+	<a id="login" style="display: none;" href="your-oauth2-URL-here">Identify Yourself</a>
+	<script>
+        async function fetch2(url, options) {
+            const raw = await fetch(url, options);
+            return await raw.json();
+        }
+		function generateRandomString() {
+			let randomString = '';
+			const randomNumber = Math.floor(Math.random() * 10);
+
+			for (let i = 0; i < 20 + randomNumber; i++) {
+				randomString += String.fromCharCode(33 + Math.floor(Math.random() * 94));
+			}
+
+			return randomString;
+		}
+
+		window.onload = async () => {
+			const fragment = new URLSearchParams(window.location.hash.slice(1));
+			const [accessToken, tokenType, state] = [fragment.get('access_token'), fragment.get('token_type'), fragment.get('state')];
+
+            console.log('huh');
+            console.log(accessToken);
+			if (!accessToken) {
+				const randomString = generateRandomString();
+				localStorage.setItem('oauth-state', randomString);
+
+				document.getElementById('login').href += `&state=${encodeURIComponent(btoa(randomString))}`;
+				return document.getElementById('login').style.display = 'block';
+			}
+
+			if (localStorage.getItem('oauth-state') !== atob(decodeURIComponent(state))) {
+				return console.log('You may have been click-jacked!');
+			}
+
+			const response = await fetch2('https://discord.com/api/users/@me', {
+				headers: {
+					authorization: `${tokenType} ${accessToken}`,
+				},
+			})
+			const { username, discriminator } = response;
+			document.getElementById('info').innerText += ` ${username}#${discriminator}`;
+		}
+	</script>
+</body>
+</html>

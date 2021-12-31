@@ -19,6 +19,14 @@ module.exports = {
 		if (!array || array.length < 1) return null;
 		return array[Math.floor(Math.random() * array.length)];
 	},
+	randomInt(min, max) {
+		min = Math.ceil(min);
+		max = Math.floor(max);
+		return Math.floor(Math.random() * (max - min) + min);
+	},
+	randomArbitrary(min, max) {
+		return Math.random() * (max - min) + min;
+	},
 	removeDupes(array) {
 		return [...new Set(array)];
 	},
@@ -35,5 +43,11 @@ module.exports = {
 		}
 
 		return array;
+	},
+	clamp(number, min, max) {
+		return number >= min ? (number <= max ? number : max) : min;
+	},
+	sumOfArray(array) {
+		return array.reduce((prev, current) => prev + current);
 	},
 };

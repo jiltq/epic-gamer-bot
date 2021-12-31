@@ -1,6 +1,8 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const logHelper = require('../logHelper.js');
+const chalk = require('chalk');
+const Archive = require('../archiveHelper.js');
 
 const archiveChannel = '892599884107087892';
 
@@ -14,6 +16,8 @@ for (const file of commandFiles) {
 	}
 }
 
+const errorIcon = new Discord.MessageAttachment(`${process.cwd()}/assets/error_icon.png`);
+
 module.exports = {
 	name: 'interactionCreate',
 	once: false,
@@ -21,19 +25,11 @@ module.exports = {
 		if (!interaction.isCommand()) return;
 		const command = commands.get(interaction.commandName);
 
-		if (!command) return;
-		logHelper.log(module.exports, 'default', `User "${interaction.user.username}" executed command "${interaction.commandName}"`);
+		const archive = new Archive('892599884107087892', 0, interaction.client);
 
-		/*
-		console.log(interaction);
-		await interaction.client.shard.broadcastEval(async (c, { $interaction, $test }) => {
-			console.log($interaction);
-			console.log($test);
-		}, { shard: 0, context: {
-			$interaction: interaction,
-			$test: { ...interaction },
-		} });
-		*/
+		if (!command) return;
+		logHelper.log(module.exports, 'default', `${chalk.hex(interaction.member.displayHexColor)(interaction.user.username)} executed ${interaction.toString()}`);
+		archive.log('COMMAND', interaction);
 
 		try {
 			await command.execute(interaction);
@@ -42,23 +38,26 @@ module.exports = {
 			logHelper.log(module.exports, 'error', `there was an unexpected error while executing command "${interaction.commandName}"`);
 			logHelper.log(module.exports, 'error', error);
 			const errorEmbed = new Discord.MessageEmbed()
-				.setTitle('there was an error while executing this command :(')
+				.setAuthor({ name: 'command error', iconURL: 'attachment://error_icon.png' })
+				.setTitle(error.message)
 				.setFooter('try not doing that')
-				.setColor('#e88388');
+				.setColor('#ED4245');
 			if (interaction.replied || interaction.deferred) {
-				await interaction.editReply({ embeds: [errorEmbed], ephemeral: true });
+				await interaction.editReply({ embeds: [errorEmbed], files: [errorIcon], ephemeral: true });
 			}
 			else {
-				await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+				await interaction.reply({ embeds: [errorEmbed], files: [errorIcon], ephemeral: true });
 			}
 		}
 		if (interaction.guild.id == '696079746697527376') {
 			// stats
 			const gamerStat = await interaction.guild.channels.fetch('903076121539657758');
 			const botStat = await interaction.guild.channels.fetch('903076402151174204');
+			// const onlineGamersStat = await interaction.guild.channels.fetch('924798906120958072');
 
 			gamerStat.setName(`gamers: ${interaction.guild.members.cache.filter(member => !member.user.bot).size}`);
 			botStat.setName(`bots: ${interaction.guild.members.cache.filter(member => member.user.bot).size}`);
+			// onlineGamersStat.setName(`gamers online: ${interaction.guild.members.cache.filter(member => (member.presence || { status: 'offline' }).status != 'offline').size}`);
 		}
 	},
 };

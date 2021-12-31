@@ -13,4 +13,8 @@ module.exports = {
 		if (!themes[theme]) return module.exports.log(module.exports, 'error', `theme "${theme}" is not valid!`);
 		return console.log(chalk.hex(themes[theme])(`${new Date().toLocaleTimeString('en-US')} | ${name}: ${message}`));
 	},
+	logAdvanced({ name }, text) {
+		return console.log(chalk.hex(themes.default)(`${new Date().toLocaleTimeString('en-US')} | ${name}:`), text);
+	},
+	themes: themes,
 };
