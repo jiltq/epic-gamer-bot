@@ -22,7 +22,7 @@ module.exports = {
 	name: 'interactionCreate',
 	once: false,
 	async execute(interaction) {
-		if (!interaction.isCommand()) return;
+		if (!interaction.isCommand() && !interaction.isMessageContextMenu()) return;
 		const command = commands.get(interaction.commandName);
 
 		const archive = new Archive('892599884107087892', 0, interaction.client);
@@ -37,6 +37,7 @@ module.exports = {
 		catch (error) {
 			logHelper.log(module.exports, 'error', `there was an unexpected error while executing command "${interaction.commandName}"`);
 			logHelper.log(module.exports, 'error', error);
+			console.log(error);
 			const errorEmbed = new Discord.MessageEmbed()
 				.setAuthor({ name: 'command error', iconURL: 'attachment://error_icon.png' })
 				.setTitle(error.message)
