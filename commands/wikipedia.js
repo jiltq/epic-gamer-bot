@@ -6,31 +6,30 @@ const Web = require('../webHelper.js');
 const web = new Web();
 
 const trim = (str, max) => ((str.length > max) ? `${str.slice(0, max - 3)}...` : str);
+const { getFavicon } = require('../utility.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('wiki')
+		.setName('wikipedia')
 		.setDescription('search wikipedia')
 		.addStringOption(option =>
 			option.setName('query')
 				.setDescription('what to search')
 				.setRequired(true)),
-	defer: true,
 	async execute(interaction) {
 		await interaction.deferReply();
-		const querystr = querystring.stringify({ titles: interaction.options.getString('query') });
-		const result = await web.fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&${querystr}`);
-		const extract = result.query.pages[Object.keys(result.query.pages)[0]].extract;
-		const { window } = new JSDOM(extract);
-		const jquery = require('jquery')(window);
-		const newtext = jquery(window.document).html(extract).text();
-		const title = result.query.pages[Object.keys(result.query.pages)[0]].title;
+		const summary = await web.fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${interaction.options.getString('query')}`);
+
+		if (!summary.extract) throw new Error('No Wikipedia page exists!');
 
 		const embed = new Discord.MessageEmbed()
-			.setAuthor('wikipedia', 'https://www.google.com/s2/favicons?domain_url=en.wikipedia.org', 'https://en.wikipedia.org')
-			.setTitle(title)
-			.addField('definition', trim(newtext || 'error: definition not available', 1024))
-			.setFooter('powered by en.wikipedia.org');
-		interaction.editReply({ embeds: [embed] });
+			.setAuthor({ name: 'wikipedia', url: 'https://en.wikipedia.org', iconURL: getFavicon('https://en.wikipedia.org') })
+			.setTitle(summary.title)
+			.setColor('#2f3136')
+			.addField('definition', trim(summary.extract, 1024));
+
+		if (summary.description) embed.setDescription(summary.description);
+		if (summary.thumbnail) embed.setThumbnail(summary.thumbnail.source);
+		interaction.editReply({ embeds: [embed], ephemeral: true });
 	},
 };

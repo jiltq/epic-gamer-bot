@@ -11,6 +11,7 @@ const scopes = [
 
 // 695662672687005737
 module.exports = {
+	experimental: true,
 	data: new SlashCommandBuilder()
 		.setName('test')
 		.setDescription('testing things'),

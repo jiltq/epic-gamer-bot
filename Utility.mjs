@@ -1,8 +1,8 @@
-module.exports = {
-	randomNumber(min, max) {
+class Utility {
+	static randomNumber(min, max) {
 		return Math.floor((Math.random() * max) + min);
-	},
-	async getMemberFromMention(mention, guild) {
+	}
+	static async getMemberFromMention(mention, guild) {
 		if (!mention) return;
 
 		if (mention.startsWith('<@') && mention.endsWith('>')) {
@@ -14,23 +14,23 @@ module.exports = {
 
 			return await guild.members.cache.get(mention);
 		}
-	},
-	random(array) {
+	}
+	static random(array) {
 		if (!array || array.length < 1) return null;
 		return array[Math.floor(Math.random() * array.length)];
-	},
-	randomInt(min, max) {
+	}
+	static randomInt(min, max) {
 		min = Math.ceil(min);
 		max = Math.floor(max);
 		return Math.floor(Math.random() * (max - min) + min);
-	},
-	randomArbitrary(min, max) {
+	}
+	static randomArbitrary(min, max) {
 		return Math.random() * (max - min) + min;
-	},
-	removeDupes(array) {
+	}
+	static removeDupes(array) {
 		return [...new Set(array)];
-	},
-	shuffle(array) {
+	}
+	static shuffle(array) {
 		let currentIndex = array.length, randomIndex;
 
 		while (currentIndex != 0) {
@@ -43,14 +43,15 @@ module.exports = {
 		}
 
 		return array;
-	},
-	clamp(number, min, max) {
+	}
+	static clamp(number, min, max) {
 		return number >= min ? (number <= max ? number : max) : min;
-	},
-	sumOfArray(array) {
+	}
+	static sumOfArray(array) {
 		return array.reduce((prev, current) => prev + current);
-	},
-	getFavicon(url) {
+	}
+	static getFavicon(url) {
 		return `https://www.google.com/s2/favicons?domain_url=${url}`;
-	},
-};
+	}
+}
+module.exports = Utility;

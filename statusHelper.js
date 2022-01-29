@@ -1,53 +1,29 @@
-const Json = require('./jsonHelper.js');
+const Json = require('./Json.js');
 const utility = require('./utility.js');
-
-async function status_update(client, statuses) {
-	if (!statuses.featured.name) {
-		/*
-		const userDataJson = new Json(`${process.cwd()}/JSON/userData.json`);
-		const userData = await userDataJson.read();
-
-		let games = [];
-
-		const gamesRaw = Object.values(userData.users).filter(user => user.games.length > 0).map(user => user.games.map(game => game.name));
-		for (let i = 0;i < gamesRaw.length;i++) {
-			const group = gamesRaw[i];
-			for (let i2 = 0;i2 < group.length;i2++) {
-				if (!games.includes(group[i2])) {
-					games.push(group[i2]);
-				}
-			}
-		}
-		games = utility.removeDupes(games);
-		*/
-
-		const type = utility.random(Object.keys(statuses.activities));
-		const activity = utility.random(statuses.activities[type]);
-
-		if (type == 'STREAMING') {
-			client.user.setPresence({ activities: [{ name: activity, type: type, url: utility.random(statuses.streamingLinks) }], status: 'dnd' });
-		}
-		else {
-			client.user.setPresence({ activities: [{ name: activity, type: type }], status: 'dnd' });
-		}
-	}
-	else {
-		client.user.setPresence({ activities: [{ name: statuses.featured.name, type: statuses.featured.type }], status: 'dnd' });
-	}
-}
 
 class Status {
 	constructor(client, path) {
 		this.client = client;
 		this.path = path;
 	}
-	async cycle() {
-		const json = new Json(this.path);
-		const statuses = await json.read();
-		const client = this.client;
-		await status_update(client, statuses);
+	async cycle(client, path) {
+		client.user.setStatus('dnd');
 		setInterval(async function() {
-			await status_update(client, statuses);
+			if (utility.random([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]) == 1) {
+				client.user.setPresence({ activities: [{ name: 'want to submit activities for egb? use the /addstatusmessage command!', type: 'PLAYING' }], status: 'dnd' });
+			}
+			else {
+				const statuses = await Json.read(Json.formatPath('botActivities'));
+				const activity = utility.random(statuses.activities);
+				const e = await client.shard.broadcastEval(async (c, { userId }) => {
+					const user = await c.users.fetch(userId);
+					if (!user) return null;
+					return user;
+				}, { context: { userId: activity.addedBy } });
+				const { tag } = e.filter(result => result != null)[0];
+
+				client.user.setActivity(`${activity.message} - ${tag}`, { type: activity.type });
+			}
 		}, 1000 * 60);
 	}
 }

@@ -38,11 +38,6 @@ module.exports = {
 					.setLabel('join call')
 					.setURL(invite.url)
 					.setStyle('LINK'),
-				new Discord.MessageButton()
-					.setEmoji('❌')
-					.setLabel('decline')
-					.setCustomId(`${interaction.id}decline`)
-					.setStyle('DANGER'),
 			);
 		await recipient.send({ embeds: [embed], components: [row] })
 			.then(async () =>{

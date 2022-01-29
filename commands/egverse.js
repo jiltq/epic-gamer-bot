@@ -1,5 +1,15 @@
 const Discord = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const Json = require('../jsonHelper.js');
+
+const Store = require('../storeHelper.js');
+const WebhookSignalManager = require('../webhookSignalManager.js');
+
+const utility = require('../utility.js');
+
+// Make sure they sound appealing!
+const egverseDescription = 'is a virtual server ecosystem that makes it easy to find and create communities centered around your interests';
+const egPointsDescription = 'are like in-game currency, except for the eg-verse. you earn eg-points when you do certain things, and you can spend them on items in the eg-points store';
 
 const servers = [
 	{
@@ -30,6 +40,7 @@ const servers = [
 ];
 
 module.exports = {
+	experimental: true,
 	data: new SlashCommandBuilder()
 		.setName('egverse')
 		.setDescription('interact with the eg-verse')
@@ -43,16 +54,98 @@ module.exports = {
 				.setDescription('view info about the eg-verse'))
 		.addSubCommand(subcommand =>
 			subcommand
-				.setName('advertise')
-				.setDescription('advertise your server in the eg-verse')),
+				.setName('inventory')
+				.setDescription('view your 🌌 eg-points inventory'))
+		.addSubCommand(subcommand =>
+			subcommand
+				.setName('store')
+				.setDescription('view the 🌌 eg-points store')),
+	/*
+		.addSubCommand(subcommand =>
+			subcommand
+				.setName('buy')
+				.setDescription('buy an item from the 🌌 eg-points store')
+				.addStringOption(option =>{
+					option.setName('item');
+					option.setDescription('item to buy');
+
+					const store = new Store();
+
+					const itemList = store.getItemList();
+
+					option.addChoices(Object.values(itemList).map(category => Object.values(category).map(item => [item, `buyitem_${item}`])));
+
+					for (const category in itemList) {
+						for (const item in itemList[category]) {
+							option.addChoice(item, `buyitem_${item}`);
+						}
+					}
+					return option.setRequired(true);
+				})),
+	*/
 	execution: {
-		'advertisement': async function() {
-				
+		'store': async function(interaction) {
+			const webhookSignalManager = new WebhookSignalManager();
+			await webhookSignalManager.setup(interaction.channel);
+
+			const store = new Store();
+
+			const itemList = await store.getItemList();
+
+			const embed = new Discord.MessageEmbed()
+				.setAuthor({ name: 'eg-verse', iconURL: 'https://cdn.discordapp.com/attachments/816126601184018472/926583837679579136/milky-way_1f30c.png' })
+				.setTitle('🛒 eg-points store')
+				.setColor('#2f3136')
+				.setDescription(`your eg-points: **$${(await store.getUserData(interaction.user.id)).points}**`)
+				.setFooter({ text: 'click an item to buy it' });
+
+			for (const category in itemList) {
+				let fieldValue = '';
+				const items = itemList[category];
+
+				for (const item in items) {
+					fieldValue = fieldValue.concat(`\n• [${item}](${webhookSignalManager.createRedirect('https://eg-messenger.herokuapp.com/linkbutton', { item: item, userId: interaction.member.id })}): $${items[item]}`);
+				}
+				embed.addField(category, fieldValue);
+			}
+			await interaction.reply({ embeds: [embed], ephemeral: true });
+			webhookSignalManager.on('website2bot', async (json) =>{
+				const result = await store.buyItem(json.userId, json.item);
+				const followUpEmbed = new Discord.MessageEmbed()
+					.setTitle(result.success ? `bought 1 "${json.item}"` : result.reason);
+				await interaction.followUp({ embeds: [followUpEmbed] });
+			});
 		},
-	},
-	async execute(interaction) {
-		const subcommand = interaction.options.getSubcommand();
-		if (subcommand == 'servers') {
+		'inventory': async function(interaction) {
+			const webhookSignalManager = new WebhookSignalManager();
+			await webhookSignalManager.setup(interaction.channel);
+
+			const store = new Store();
+
+			const { inventory } = await store.getUserData(interaction.user.id);
+
+			const types = utility.removeDupes(inventory);
+
+			const embed = new Discord.MessageEmbed()
+				.setAuthor({ name: 'eg-verse', iconURL: 'https://cdn.discordapp.com/attachments/816126601184018472/926583837679579136/milky-way_1f30c.png' })
+				.setTitle('your inventory')
+				.setColor('#2f3136')
+				.setFooter({ text: 'click an item to use it' });
+
+			let desc = '';
+			for (const type of types) {
+				const amount = inventory.filter(item => item == type).length;
+				desc = desc.concat(`\n\n**[${type}](${webhookSignalManager.createRedirect('https://eg-messenger.herokuapp.com/linkbutton', { item: type, userId: interaction.member.id })})** \`x${amount}\``);
+			}
+			embed.setDescription(desc);
+
+			await interaction.reply({ embeds: [embed], ephemeral: true });
+			webhookSignalManager.on('website2bot', async (json) =>{
+				console.log(json);
+				await store.useItem(json.item, interaction);
+			});
+		},
+		'servers': async function(interaction) {
 			const embed = new Discord.MessageEmbed()
 				.setAuthor({ name: '🌌 eg-verse' })
 				.setColor('#2f3136')
@@ -73,15 +166,16 @@ module.exports = {
 				}
 			}
 			interaction.reply({ embeds: [embed], ephemeral: true });
-		}
-		else if (subcommand == 'info') {
+		},
+		'info': async function(interaction) {
 			const embed = new Discord.MessageEmbed()
 				.setAuthor({ name: '🌌 eg-verse' })
 				.setColor('#2f3136')
 				.setTitle('the eg-verse')
 				.setThumbnail('https://cdn.discordapp.com/attachments/816126601184018472/926583837679579136/milky-way_1f30c.png')
-				.setDescription('the eg-verse is a virtual ecosystem that unites servers and members that affiliate with epic gamers\n\nwithin the eg-verse, you can find - or create - servers that interest you, and talk to people who share your interests');
+				.setDescription(egverseDescription)
+				.addField('eg-points', egPointsDescription);
 			interaction.reply({ embeds: [embed], ephemeral: true });
-		}
+		},
 	},
 };

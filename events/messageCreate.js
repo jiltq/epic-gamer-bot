@@ -1,9 +1,15 @@
 const trim = (str, max) => ((str.length > max) ? `${str.slice(0, max - 3)}...` : str);
 let lastTalked;
+const Discord = require('discord.js');
 
 const Json = require('../jsonHelper.js');
 const Archive = require('../archiveHelper.js');
-const Discord = require('discord.js');
+const Web = require('../webHelper.js');
+const WebhookSignalManager = require('../webhookSignalManager.js');
+
+const Store = require('../storeHelper.js');
+
+const dictionaryKey = '2a82e248-bad2-40a6-b55c-3007c8519b41';
 
 const archiveChannel = '892599884107087892';
 
@@ -99,9 +105,64 @@ function formatMessageContent(content) {
 	};
 }
 
+const messengerMessages = [];
+
+const acceptableOffensiveness = 0.25;
+
 module.exports = {
 	name: 'messageCreate',
 	async execute(message) {
+		if (!message.author.bot && message.content && message.guild.id == '926307504533680169') {
+			const web = new Web();
+			const words = message.content.split(' ');
+			const wordsAreOffensive = [];
+			for (const word of words) {
+				const responses = await web.fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${encodeURIComponent(word)}?key=${dictionaryKey}`);
+				const offensiveDefinitions = [];
+				for (const response of responses) {
+					if (response.meta) {
+						offensiveDefinitions.push(response.meta.offensive);
+					}
+				}
+				const percent = offensiveDefinitions.filter(offensive => offensive).length / offensiveDefinitions.length;
+				wordsAreOffensive.push(!isNaN(percent) ? percent : 0);
+			}
+			const offensivePercent = wordsAreOffensive.reduce((prev, next) => prev + next);
+			if (offensivePercent > acceptableOffensiveness) {
+				const moderationIcon = new Discord.MessageAttachment(`${process.cwd()}/assets/moderation_icon.png`);
+				const embed = new Discord.MessageEmbed()
+					.setAuthor({ name: 'egb moderation', iconURL: 'attachment://moderation_icon.png' })
+					.setColor('#EB459E')
+					.setTitle('do not use offensive language!')
+					.setDescription(`offensive content: "${message.content}"`);
+				await message.delete();
+				await message.author.send({ embeds: [embed], files: [moderationIcon] });
+			}
+		}
+		if (!message.author.bot && message.content) {
+			const store = new Store();
+			await store.addPointsToUser(message.author.id, 2);
+		}
+		// WEBHOOK
+		if (message.webhookId == '932666422444838922') {
+			const webhookSignalManager = new WebhookSignalManager();
+			const parsed = JSON.parse(message.content);
+			console.log(parsed);
+			message.channel.send('got signal!');
+/*
+			if (parsed.context == 'egpointpurchase') {
+				const store = new Store();
+				const result = await store.buyItem(parsed.data.userId, parsed.data.item);
+				if (result.success) {
+					message.channel.send('ok bought item xd');
+				}
+				else {
+					message.channel.send(`couldnt buy item (${result.reason})`);
+				}
+			}
+			*/
+		}
+		// WEBHOOK
 		if (!message.author.bot) {
 			for (const server of serversWithStats) {
 				message.client.shard.broadcastEval(async (c, context) => {

@@ -1,3 +1,5 @@
+return;
+
 const Discord = require('discord.js');
 const Json = require('../jsonHelper.js');
 const logHelper = require('../logHelper.js');
