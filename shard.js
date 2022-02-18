@@ -9,3 +9,7 @@ const client = new Client({ intents });
 	await BotEventHelper.listen({ emitter: client, path: __dirname + '/events/' });
 	await client.login(token);
 }();
+
+process.on('uncaughtException', error =>{
+	console.log(error);
+});

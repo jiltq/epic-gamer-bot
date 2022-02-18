@@ -5,7 +5,7 @@ const Voice = new (require('../voiceHelper.js'))();
 const { AudioPlayerStatus } = require('@discordjs/voice');
 
 const Voice2 = require('../Voice.js');
-const Decor = require('../Decor.js');
+const { embedColors, getIconAttachment } = require('../Decor.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -25,23 +25,33 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		await interaction.deferReply();
-		const musicIcon = Decor.getIconAttachment('music_icon');
+		const musicIcon = getIconAttachment('music_icon');
 		const connection = Voice2.joinVC(interaction.member.voice.channel);
 		const video = (await yts(interaction.options.getString('name'))).videos[0];
-		const download = await Voice2.createAudioResourceYes(video.url);
+		const download = await Voice2.downloadVideo(video.url);
 		const player = Voice2.playResource(connection, download);
 		const controlPanel = Voice2.createControlPanel();
 
 		const songEmbed = new Discord.MessageEmbed()
 			.setAuthor({ name: 'egb music', iconURL: 'attachment://music_icon.png' })
-			.setColor(Decor.embedColors.default)
+			.setColor(embedColors.default)
 			.setURL(video.url)
 			.setTitle(video.title)
-			.setDescription(`**${video.author.name}**`)
+			.setDescription(`**by [${video.author.name}](${video.author.url})**`)
 			.setImage(video.thumbnail);
 
-		const response = await interaction.editReply({ embeds: [songEmbed], components: controlPanel, files: [musicIcon], ephemeral: false });
+		const response = await interaction.followUp({ embeds: [songEmbed], components: controlPanel, files: [musicIcon], ephemeral: false });
 		Voice2.idkControlPanel(interaction, controlPanel, { response: response, player: player, resource: download });
-		player.on(AudioPlayerStatus.Idle, async () => await response.delete());
+		player.on(AudioPlayerStatus.Idle, async () =>{
+			const row = controlPanel[0];
+			const row2 = controlPanel[1];
+			for (const component of row.components) {
+				component.setDisabled(true);
+			}
+			for (const component of row2.components) {
+				component.setDisabled(true);
+			}
+			response.edit({ components: [row, row2] });
+		});
 	},
 };

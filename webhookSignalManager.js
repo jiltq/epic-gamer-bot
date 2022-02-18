@@ -53,6 +53,7 @@ class WebhookSignalManager extends EventEmitter {
 				const json = JSON.parse(message.content);
 				if (json.signalId == this.signalId) {
 					this.emit('website2bot', json);
+					await message.delete();
 				}
 			}
 		});

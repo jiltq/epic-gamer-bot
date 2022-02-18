@@ -8,6 +8,7 @@ const {
 } = require('@discordjs/voice');
 const Discord = require('discord.js');
 const youtubedl = require('youtube-dl-exec');
+const { stream } = require('play-dl');
 
 /**
  * Class for easily working with Voice Channels
@@ -24,14 +25,6 @@ class Voice {
 			guildId: voiceChannel.guildId,
 			adapterCreator: voiceChannel.guild.voiceAdapterCreator,
 		});
-	}
-	/**
-     * Download a YouTube video
-     * @param {string} link The link to the video
-     * @returns {ReadableStream} The audio stream
-     */
-	static downloadVideo(link) {
-		return ytdl(link, { filter: 'audioonly' });
 	}
 	/**
      * Play an audio stream
@@ -141,41 +134,11 @@ class Voice {
 			return i.update({ components: [row, row2] });
 		});
 	}
-	static async createAudioResourceYes(url) {
-		return new Promise((resolve, reject) => {
-
-			const something = youtubedl(
-				url,
-				{
-					o: '-',
-					q: '',
-					f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
-					r: '100K',
-				},
-				/*{ stdio: ['ignore', 'pipe', 'ignore'] },*/
-			);
-			something
-				.then(async process =>{
-					console.log(process);
-					if (!process.stdout) {
-						reject(new Error('No stdout'));
-						return;
-					}
-					const stream = process.stdout;
-					const onError = error => {
-						if (!process.killed) process.kill();
-						stream.resume();
-						reject(error);
-					};
-					process
-						.once('spawn', () => {
-							demuxProbe(stream)
-								.then(probe => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
-								.catch(onError);
-						})
-						.catch(onError);
-				});
-
+	static async downloadVideo(url) {
+		const _stream = await stream(url);
+		return createAudioResource(_stream.stream, {
+			inputType: _stream.type,
+			inlineVolume: true,
 		});
 	}
 }

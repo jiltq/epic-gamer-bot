@@ -1,55 +1,59 @@
 const Discord = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Worker } = require('worker_threads');
+const WebhookSignalManager = require('../webhookSignalManager.js');
+const Web = require('../Web.js');
+const Json = require('../Json.js');
 
 const scopes = [
 	'identify',
 	'email',
 	'connections',
-	'guilds',
 ];
 
 // 695662672687005737
 module.exports = {
-	experimental: true,
 	data: new SlashCommandBuilder()
 		.setName('test')
 		.setDescription('testing things'),
 	async execute(interaction) {
 		await interaction.deferReply();
-		if (interaction.user.id != '695662672687005737') return interaction.editReply({ content: 'ERR UNAUTHORIZED', ephemeral: true });
+		// if (interaction.user.id != '695662672687005737') return interaction.editReply({ content: 'ERR UNAUTHORIZED', ephemeral: true });
 
-		const oauth2URL = `https://discord.com/api/oauth2/authorize?client_id=${interaction.client.user.id}&redirect_uri=http%3A%2F%2Flocalhost%3A53134&response_type=code&scope=${scopes.join('%20')}`;
+		const webhookSignalManager = new WebhookSignalManager();
+		await webhookSignalManager.setup(interaction.channel);
+
+		const oauth2URL = `https://discord.com/api/oauth2/authorize?client_id=${interaction.client.user.id}&redirect_uri=https%3A%2F%2Feg-messenger.herokuapp.com%2Foauth2&response_type=token&scope=${scopes.join('%20')}&state=${JSON.stringify({ webhookURL: webhookSignalManager.webhook.url, signalId: webhookSignalManager.signalId })}`;
 
 		const embed = new Discord.MessageEmbed()
 			.setTitle('oauth2 url')
 			.setURL(oauth2URL);
 
-		const worker = new Worker(`${process.cwd()}/oauth2Server.js`, {
-			workerData: {
-				scopes: scopes,
-			},
-		});
+		interaction.editReply({ embeds: [embed] });
 
-		await interaction.editReply({ embeds: [embed] });
-
-		worker.on('message', async message =>{
-			console.log(message);
-			if (message.status == 'data get') {
-				console.log(message.data);
-				const data = message.data;
-				const userEmbed = new Discord.MessageEmbed()
-					.setAuthor({ name: 'oauth2 authorized' })
-					.setTitle(data.user.username);
-				await interaction.followUp({ embeds: [userEmbed] });
-				const connectionsEmbed = new Discord.MessageEmbed()
-					.setAuthor({ name: 'oauth2 authorized' })
-					.setTitle('your connections');
-				for (const connection of data.connections) {
-					connectionsEmbed.addField(connection.type, connection.name, true);
-				}
-				await interaction.followUp({ embeds: [connectionsEmbed] });
+		webhookSignalManager.on('website2bot', async (json) =>{
+			console.log(json);
+			const data = await Web.fetch('https://discord.com/api/users/@me', {
+				headers: {
+					authorization: `${json.tokenType} ${json.accessToken}`,
+				},
+			});
+			const data2 = await Web.fetch('https://discord.com/api/users/@me/connections', {
+				headers: {
+					authorization: `${json.tokenType} ${json.accessToken}`,
+				},
+			});
+			console.log(data);
+			console.log(data2);
+			const jsonData = await Json.read(Json.formatPath('userConnections'));
+			if (!jsonData.users[interaction.user.id]) {
+				jsonData.users[interaction.user.id] = { connections: [] };
 			}
+			jsonData.users[interaction.user.id].connections = data2;
+			await Json.write(Json.formatPath('userConnections'), jsonData);
+
+			interaction.followUp({ content: 'successfully added your 3rd-party connections' });
+
+			console.log(await Web.auth('spotify'));
 		});
 	},
 };
