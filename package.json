@@ -51,7 +51,7 @@
     "robotjs": "^0.6.0",
     "sequelize": "^6.6.5",
     "spotify-web-api-node": "^5.0.2",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^5.0.3",
     "weather": "^1.0.4",
     "winston": "^3.3.3",
     "youtube-dl-exec": "^2.0.2",
